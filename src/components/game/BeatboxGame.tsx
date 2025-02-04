@@ -4,6 +4,7 @@ import { InstrumentButton } from "./InstrumentButton";
 import { Character } from "./Character";
 import { GameControls } from "./GameControls";
 import { toast } from "sonner";
+import { playSound, startLoop, stopLoop } from "@/utils/audioUtils";
 
 const instruments = [
   { id: "drum", name: "Drum", icon: "🥁", color: "#FF7F7F" },
@@ -12,12 +13,13 @@ const instruments = [
   { id: "cymbals", name: "Cymbals", icon: "🔔", color: "#87CEEB" },
   { id: "guitar", name: "Guitar", icon: "🎸", color: "#DDA0DD" },
   { id: "beatbox", name: "Beatbox", icon: "🎤", color: "#FFB6C1" },
-];
+] as const;
 
 interface Character {
   id: string;
   type: string;
   position: { x: number; y: number };
+  loopId?: number;
 }
 
 export const BeatboxGame = () => {
@@ -33,6 +35,8 @@ export const BeatboxGame = () => {
     const x = e.clientX - rect.left - 40;
     const y = e.clientY - rect.top - 40;
 
+    playSound(selectedInstrument as keyof typeof instruments);
+
     setCharacters((prev) => [
       ...prev,
       {
@@ -46,14 +50,25 @@ export const BeatboxGame = () => {
   }, [selectedInstrument]);
 
   const removeCharacter = useCallback((id: string) => {
-    setCharacters((prev) => prev.filter((char) => char.id !== id));
+    setCharacters((prev) => {
+      const char = prev.find(c => c.id === id);
+      if (char?.loopId) {
+        stopLoop(char.loopId);
+      }
+      return prev.filter((char) => char.id !== id);
+    });
     toast.info("Removed beat");
   }, []);
 
   const handleClear = useCallback(() => {
+    characters.forEach(char => {
+      if (char.loopId) {
+        stopLoop(char.loopId);
+      }
+    });
     setCharacters([]);
     toast.info("Cleared all beats");
-  }, []);
+  }, [characters]);
 
   const toggleRecording = useCallback(() => {
     setIsRecording((prev) => !prev);
@@ -63,6 +78,26 @@ export const BeatboxGame = () => {
   const togglePlayback = useCallback(() => {
     setIsPlaying((prev) => !prev);
     toast(isPlaying ? "Playback paused" : "Playback started");
+  }, [isPlaying]);
+
+  // Handle starting/stopping sound loops when playback state changes
+  useEffect(() => {
+    if (isPlaying) {
+      setCharacters(prev => prev.map(char => ({
+        ...char,
+        loopId: startLoop(char.type as keyof typeof instruments)
+      })));
+    } else {
+      characters.forEach(char => {
+        if (char.loopId) {
+          stopLoop(char.loopId);
+        }
+      });
+      setCharacters(prev => prev.map(char => ({
+        ...char,
+        loopId: undefined
+      })));
+    }
   }, [isPlaying]);
 
   return (
@@ -97,7 +132,10 @@ export const BeatboxGame = () => {
               icon={instrument.icon}
               color={instrument.color}
               isActive={selectedInstrument === instrument.id}
-              onClick={() => setSelectedInstrument(instrument.id)}
+              onClick={() => {
+                setSelectedInstrument(instrument.id);
+                playSound(instrument.id);
+              }}
             />
           ))}
         </motion.div>
