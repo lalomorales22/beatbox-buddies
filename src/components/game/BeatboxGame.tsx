@@ -23,13 +23,14 @@ interface Character {
 export const BeatboxGame = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isRecording, setIsRecording] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [selectedInstrument, setSelectedInstrument] = useState<string | null>(null);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!selectedInstrument) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - 40; // Adjust for character size
+    const x = e.clientX - rect.left - 40;
     const y = e.clientY - rect.top - 40;
 
     setCharacters((prev) => [
@@ -41,7 +42,6 @@ export const BeatboxGame = () => {
       },
     ]);
 
-    // Play sound effect here
     toast.success(`Added ${selectedInstrument} beat!`);
   }, [selectedInstrument]);
 
@@ -60,6 +60,11 @@ export const BeatboxGame = () => {
     toast(isRecording ? "Recording stopped" : "Recording started");
   }, [isRecording]);
 
+  const togglePlayback = useCallback(() => {
+    setIsPlaying((prev) => !prev);
+    toast(isPlaying ? "Playback paused" : "Playback started");
+  }, [isPlaying]);
+
   return (
     <div className="min-h-screen bg-game-background p-4">
       <div
@@ -72,7 +77,7 @@ export const BeatboxGame = () => {
               key={char.id}
               type={char.type}
               position={char.position}
-              isPlaying={true}
+              isPlaying={isPlaying}
               onRemove={() => removeCharacter(char.id)}
             />
           ))}
@@ -98,7 +103,9 @@ export const BeatboxGame = () => {
         </motion.div>
         <GameControls
           isRecording={isRecording}
+          isPlaying={isPlaying}
           onToggleRecording={toggleRecording}
+          onTogglePlayback={togglePlayback}
           onClear={handleClear}
         />
       </div>
