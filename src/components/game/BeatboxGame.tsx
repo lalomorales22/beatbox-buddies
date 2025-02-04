@@ -79,28 +79,29 @@ export const BeatboxGame = () => {
         </AnimatePresence>
       </div>
 
-      <motion.div
-        className="flex justify-center gap-4 flex-wrap"
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-      >
-        {instruments.map((instrument) => (
-          <InstrumentButton
-            key={instrument.id}
-            name={instrument.name}
-            icon={instrument.icon}
-            color={instrument.color}
-            isActive={selectedInstrument === instrument.id}
-            onClick={() => setSelectedInstrument(instrument.id)}
-          />
-        ))}
-      </motion.div>
-
-      <GameControls
-        isRecording={isRecording}
-        onToggleRecording={toggleRecording}
-        onClear={handleClear}
-      />
+      <div className="flex justify-center items-center gap-4 flex-wrap">
+        <motion.div
+          className="flex justify-center gap-4 flex-wrap"
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+        >
+          {instruments.map((instrument) => (
+            <InstrumentButton
+              key={instrument.id}
+              name={instrument.name}
+              icon={instrument.icon}
+              color={instrument.color}
+              isActive={selectedInstrument === instrument.id}
+              onClick={() => setSelectedInstrument(instrument.id)}
+            />
+          ))}
+        </motion.div>
+        <GameControls
+          isRecording={isRecording}
+          onToggleRecording={toggleRecording}
+          onClear={handleClear}
+        />
+      </div>
     </div>
   );
 };

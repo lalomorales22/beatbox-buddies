@@ -14,7 +14,7 @@ export const GameControls = ({
 }: GameControlsProps) => {
   return (
     <motion.div
-      className="fixed bottom-4 right-4 flex gap-2"
+      className="flex gap-2"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
     >
