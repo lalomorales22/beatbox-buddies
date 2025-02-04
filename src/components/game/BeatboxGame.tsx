@@ -13,6 +13,20 @@ const instruments = [
   { id: "cymbals", name: "Cymbals", icon: "🔔", color: "#87CEEB" },
   { id: "guitar", name: "Guitar", icon: "🎸", color: "#DDA0DD" },
   { id: "beatbox", name: "Beatbox", icon: "🎤", color: "#FFB6C1" },
+  { id: "violin", name: "Violin", icon: "🎻", color: "#FFA07A" },
+  { id: "trumpet", name: "Trumpet", icon: "🎺", color: "#FFD700" },
+  { id: "saxophone", name: "Saxophone", icon: "🎷", color: "#F08080" },
+  { id: "flute", name: "Flute", icon: "🎼", color: "#98FB98" },
+  { id: "harp", name: "Harp", icon: "🎸", color: "#DEB887" },
+  { id: "xylophone", name: "Xylophone", icon: "🎵", color: "#87CEFA" },
+  { id: "triangle", name: "Triangle", icon: "📐", color: "#F0E68C" },
+  { id: "maracas", name: "Maracas", icon: "🎵", color: "#FFA500" },
+  { id: "tambourine", name: "Tambourine", icon: "🔔", color: "#BA55D3" },
+  { id: "bongo", name: "Bongo", icon: "🥁", color: "#CD853F" },
+  { id: "conga", name: "Conga", icon: "🥁", color: "#8B4513" },
+  { id: "bells", name: "Bells", icon: "🔔", color: "#ADD8E6" },
+  { id: "synth", name: "Synth", icon: "🎹", color: "#9370DB" },
+  { id: "clap", name: "Clap", icon: "👏", color: "#F4A460" }
 ] as const;
 
 interface Character {
@@ -121,7 +135,7 @@ export const BeatboxGame = () => {
 
       <div className="flex justify-center items-center gap-4 flex-wrap">
         <motion.div
-          className="flex justify-center gap-4 flex-wrap"
+          className="flex justify-center gap-2 flex-wrap max-w-[1200px]"
           initial={{ y: 100 }}
           animate={{ y: 0 }}
         >
