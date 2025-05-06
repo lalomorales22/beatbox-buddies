@@ -2,37 +2,37 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { InstrumentButton } from "./InstrumentButton";
-import { Character } from "./Character";
+import { Character, InstrumentType } from "./Character";
 import { GameControls } from "./GameControls";
 import { toast } from "sonner";
 import { playSound, startLoop, stopLoop, loadCustomSound } from "@/utils/audioUtils";
 
 const instruments = [
-  { id: "drum", name: "Drum", icon: "🥁", color: "#FF7F7F" },
-  { id: "bass", name: "Bass", icon: "🎸", color: "#98FF98" },
-  { id: "piano", name: "Piano", icon: "🎹", color: "#FFE66D" },
-  { id: "cymbals", name: "Cymbals", icon: "🔔", color: "#87CEEB" },
-  { id: "guitar", name: "Guitar", icon: "🎸", color: "#DDA0DD" },
-  { id: "beatbox", name: "Beatbox", icon: "🎤", color: "#FFB6C1" },
-  { id: "violin", name: "Violin", icon: "🎻", color: "#FFA07A" },
-  { id: "trumpet", name: "Trumpet", icon: "🎺", color: "#FFD700" },
-  { id: "saxophone", name: "Saxophone", icon: "🎷", color: "#F08080" },
-  { id: "flute", name: "Flute", icon: "🎼", color: "#98FB98" },
-  { id: "harp", name: "Harp", icon: "🎸", color: "#DEB887" },
-  { id: "xylophone", name: "Xylophone", icon: "🎵", color: "#87CEFA" },
-  { id: "triangle", name: "Triangle", icon: "📐", color: "#F0E68C" },
-  { id: "maracas", name: "Maracas", icon: "🎵", color: "#FFA500" },
-  { id: "tambourine", name: "Tambourine", icon: "🔔", color: "#BA55D3" },
-  { id: "bongo", name: "Bongo", icon: "🥁", color: "#CD853F" },
-  { id: "conga", name: "Conga", icon: "🥁", color: "#8B4513" },
-  { id: "bells", name: "Bells", icon: "🔔", color: "#ADD8E6" },
-  { id: "synth", name: "Synth", icon: "🎹", color: "#9370DB" },
-  { id: "clap", name: "Clap", icon: "👏", color: "#F4A460" }
+  { id: "drum" as InstrumentType, name: "Drum", icon: "🥁", color: "#FF7F7F" },
+  { id: "bass" as InstrumentType, name: "Bass", icon: "🎸", color: "#98FF98" },
+  { id: "piano" as InstrumentType, name: "Piano", icon: "🎹", color: "#FFE66D" },
+  { id: "cymbals" as InstrumentType, name: "Cymbals", icon: "🔔", color: "#87CEEB" },
+  { id: "guitar" as InstrumentType, name: "Guitar", icon: "🎸", color: "#DDA0DD" },
+  { id: "beatbox" as InstrumentType, name: "Beatbox", icon: "🎤", color: "#FFB6C1" },
+  { id: "violin" as InstrumentType, name: "Violin", icon: "🎻", color: "#FFA07A" },
+  { id: "trumpet" as InstrumentType, name: "Trumpet", icon: "🎺", color: "#FFD700" },
+  { id: "saxophone" as InstrumentType, name: "Saxophone", icon: "🎷", color: "#F08080" },
+  { id: "flute" as InstrumentType, name: "Flute", icon: "🎼", color: "#98FB98" },
+  { id: "harp" as InstrumentType, name: "Harp", icon: "🎸", color: "#DEB887" },
+  { id: "xylophone" as InstrumentType, name: "Xylophone", icon: "🎵", color: "#87CEFA" },
+  { id: "triangle" as InstrumentType, name: "Triangle", icon: "📐", color: "#F0E68C" },
+  { id: "maracas" as InstrumentType, name: "Maracas", icon: "🎵", color: "#FFA500" },
+  { id: "tambourine" as InstrumentType, name: "Tambourine", icon: "🔔", color: "#BA55D3" },
+  { id: "bongo" as InstrumentType, name: "Bongo", icon: "🥁", color: "#CD853F" },
+  { id: "conga" as InstrumentType, name: "Conga", icon: "🥁", color: "#8B4513" },
+  { id: "bells" as InstrumentType, name: "Bells", icon: "🔔", color: "#ADD8E6" },
+  { id: "synth" as InstrumentType, name: "Synth", icon: "🎹", color: "#9370DB" },
+  { id: "clap" as InstrumentType, name: "Clap", icon: "👏", color: "#F4A460" }
 ];
 
 interface Character {
   id: string;
-  type: string;
+  type: InstrumentType;
   position: { x: number; y: number };
   loopId?: number;
   customSound?: string;
@@ -42,7 +42,7 @@ export const BeatboxGame = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedInstrument, setSelectedInstrument] = useState<string | null>(null);
+  const [selectedInstrument, setSelectedInstrument] = useState<InstrumentType | null>(null);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!selectedInstrument) return;

@@ -1,4 +1,6 @@
 
+import { InstrumentType } from "@/components/game/Character";
+
 // Create an audio context
 let audioContext: AudioContext | null = null;
 
@@ -36,7 +38,7 @@ const instrumentSounds = {
 // Cache for loaded audio files
 const audioCache = new Map<string, AudioBuffer>();
 
-export const playSound = (instrument: keyof typeof instrumentSounds) => {
+export const playSound = (instrument: InstrumentType) => {
   const ctx = getAudioContext();
   const oscillator = ctx.createOscillator();
   const gainNode = ctx.createGain();
@@ -81,7 +83,7 @@ export const playCustomSound = (audioUrl: string) => {
     .catch(e => console.error("Error playing custom sound:", e));
 };
 
-export const startLoop = (instrument: keyof typeof instrumentSounds, bpm = 120) => {
+export const startLoop = (instrument: InstrumentType, bpm = 120) => {
   const intervalTime = (60 / bpm) * 1000; // Convert BPM to milliseconds
   return window.setInterval(() => playSound(instrument), intervalTime);
 };
