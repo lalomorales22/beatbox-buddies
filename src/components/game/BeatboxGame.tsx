@@ -1,10 +1,11 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { InstrumentButton } from "./InstrumentButton";
 import { Character } from "./Character";
 import { GameControls } from "./GameControls";
 import { toast } from "sonner";
-import { playSound, startLoop, stopLoop } from "@/utils/audioUtils";
+import { playSound, startLoop, stopLoop, loadCustomSound } from "@/utils/audioUtils";
 
 const instruments = [
   { id: "drum", name: "Drum", icon: "🥁", color: "#FF7F7F" },
@@ -27,13 +28,14 @@ const instruments = [
   { id: "bells", name: "Bells", icon: "🔔", color: "#ADD8E6" },
   { id: "synth", name: "Synth", icon: "🎹", color: "#9370DB" },
   { id: "clap", name: "Clap", icon: "👏", color: "#F4A460" }
-] as const;
+];
 
 interface Character {
   id: string;
   type: string;
   position: { x: number; y: number };
   loopId?: number;
+  customSound?: string;
 }
 
 export const BeatboxGame = () => {
@@ -49,7 +51,7 @@ export const BeatboxGame = () => {
     const x = e.clientX - rect.left - 40;
     const y = e.clientY - rect.top - 40;
 
-    playSound(selectedInstrument as keyof typeof instruments);
+    playSound(selectedInstrument);
 
     setCharacters((prev) => [
       ...prev,
@@ -62,6 +64,37 @@ export const BeatboxGame = () => {
 
     toast.success(`Added ${selectedInstrument} beat!`);
   }, [selectedInstrument]);
+
+  const handleCustomSoundChange = useCallback((id: string, file: File) => {
+    const audioUrl = URL.createObjectURL(file);
+    
+    setCharacters(prev => {
+      return prev.map(char => {
+        if (char.id === id) {
+          // If this character is already playing, stop its current loop
+          if (char.loopId && isPlaying) {
+            stopLoop(char.loopId);
+          }
+          
+          const updatedChar = { 
+            ...char, 
+            customSound: audioUrl 
+          };
+          
+          // If we're currently playing, start a new loop with the custom sound
+          if (isPlaying) {
+            const loopId = loadCustomSound(audioUrl);
+            return { ...updatedChar, loopId };
+          }
+          
+          return updatedChar;
+        }
+        return char;
+      });
+    });
+    
+    toast.success(`Custom sound uploaded!`);
+  }, [isPlaying]);
 
   const removeCharacter = useCallback((id: string) => {
     setCharacters((prev) => {
@@ -97,10 +130,19 @@ export const BeatboxGame = () => {
   // Handle starting/stopping sound loops when playback state changes
   useEffect(() => {
     if (isPlaying) {
-      setCharacters(prev => prev.map(char => ({
-        ...char,
-        loopId: startLoop(char.type as keyof typeof instruments)
-      })));
+      setCharacters(prev => prev.map(char => {
+        if (char.customSound) {
+          return {
+            ...char,
+            loopId: loadCustomSound(char.customSound)
+          };
+        } else {
+          return {
+            ...char,
+            loopId: startLoop(char.type)
+          };
+        }
+      }));
     } else {
       characters.forEach(char => {
         if (char.loopId) {
@@ -128,6 +170,7 @@ export const BeatboxGame = () => {
               position={char.position}
               isPlaying={isPlaying}
               onRemove={() => removeCharacter(char.id)}
+              onCustomSoundChange={(file) => handleCustomSoundChange(char.id, file)}
             />
           ))}
         </AnimatePresence>

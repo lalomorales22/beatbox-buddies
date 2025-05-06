@@ -1,13 +1,30 @@
+
 import { motion } from "framer-motion";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { useState } from "react";
 
 interface CharacterProps {
   type: string;
   position: { x: number; y: number };
   isPlaying: boolean;
   onRemove: () => void;
+  onCustomSoundChange: (file: File) => void;
 }
 
-export const Character = ({ type, position, isPlaying, onRemove }: CharacterProps) => {
+export const Character = ({ 
+  type, 
+  position, 
+  isPlaying, 
+  onRemove, 
+  onCustomSoundChange 
+}: CharacterProps) => {
+  const [fileInputId] = useState(`file-upload-${Date.now()}`);
+  
   const characterStyles = {
     drum: { color: "#FF7F7F", icon: "🥁", animation: "bounce-slow" },
     bass: { color: "#98FF98", icon: "🎸", animation: "pulse-soft" },
@@ -31,6 +48,20 @@ export const Character = ({ type, position, isPlaying, onRemove }: CharacterProp
     clap: { color: "#F4A460", icon: "👏", animation: "pulse-soft" }
   }[type] || { color: "#FF7F7F", icon: "🎵", animation: "bounce-slow" };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type === "audio/mpeg" || file.type === "audio/mp3") {
+        onCustomSoundChange(file);
+      }
+    }
+  };
+
+  const triggerFileUpload = () => {
+    document.getElementById(fileInputId)?.click();
+  };
+
   return (
     <motion.div
       className={`absolute ${isPlaying ? `animate-${characterStyles.animation}` : ""}`}
@@ -39,14 +70,33 @@ export const Character = ({ type, position, isPlaying, onRemove }: CharacterProp
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
     >
-      <div
-        className="w-20 h-20 rounded-full flex items-center justify-center cursor-pointer relative group"
-        style={{ backgroundColor: characterStyles.color }}
-        onClick={onRemove}
-      >
-        <span className="text-3xl">{characterStyles.icon}</span>
-        <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-20 transition-opacity" />
-      </div>
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center cursor-pointer relative group"
+            style={{ backgroundColor: characterStyles.color }}
+            onClick={onRemove}
+          >
+            <span className="text-3xl">{characterStyles.icon}</span>
+            <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-20 transition-opacity" />
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onClick={triggerFileUpload}>
+            Upload Custom Sound
+          </ContextMenuItem>
+          <ContextMenuItem onClick={onRemove}>
+            Remove
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+      <input
+        id={fileInputId}
+        type="file"
+        accept=".mp3,audio/mpeg"
+        onChange={handleFileChange}
+        className="hidden"
+      />
     </motion.div>
   );
 };

@@ -1,3 +1,4 @@
+
 // Create an audio context
 let audioContext: AudioContext | null = null;
 
@@ -32,6 +33,9 @@ const instrumentSounds = {
   clap: { frequency: 1500, type: 'square', duration: 0.05 }
 } as const;
 
+// Cache for loaded audio files
+const audioCache = new Map<string, AudioBuffer>();
+
 export const playSound = (instrument: keyof typeof instrumentSounds) => {
   const ctx = getAudioContext();
   const oscillator = ctx.createOscillator();
@@ -52,9 +56,39 @@ export const playSound = (instrument: keyof typeof instrumentSounds) => {
   oscillator.stop(ctx.currentTime + sound.duration);
 };
 
+export const playCustomSound = (audioUrl: string) => {
+  const ctx = getAudioContext();
+  
+  if (audioCache.has(audioUrl)) {
+    const audioBuffer = audioCache.get(audioUrl)!;
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+    source.start();
+    return;
+  }
+  
+  fetch(audioUrl)
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+      audioCache.set(audioUrl, audioBuffer);
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(ctx.destination);
+      source.start();
+    })
+    .catch(e => console.error("Error playing custom sound:", e));
+};
+
 export const startLoop = (instrument: keyof typeof instrumentSounds, bpm = 120) => {
   const intervalTime = (60 / bpm) * 1000; // Convert BPM to milliseconds
-  return setInterval(() => playSound(instrument), intervalTime);
+  return window.setInterval(() => playSound(instrument), intervalTime);
+};
+
+export const loadCustomSound = (audioUrl: string, bpm = 120) => {
+  const intervalTime = (60 / bpm) * 1000;
+  return window.setInterval(() => playCustomSound(audioUrl), intervalTime);
 };
 
 export const stopLoop = (intervalId: number) => {
