@@ -8,8 +8,31 @@ import {
 } from "@/components/ui/context-menu";
 import { useState } from "react";
 
+// Define the specific instrument types as a union type
+export type InstrumentType = 
+  | "drum" 
+  | "bass" 
+  | "piano" 
+  | "cymbals" 
+  | "guitar" 
+  | "beatbox" 
+  | "violin" 
+  | "trumpet" 
+  | "saxophone" 
+  | "flute" 
+  | "harp" 
+  | "xylophone" 
+  | "triangle" 
+  | "maracas" 
+  | "tambourine" 
+  | "bongo" 
+  | "conga" 
+  | "bells" 
+  | "synth" 
+  | "clap";
+
 interface CharacterProps {
-  type: string;
+  type: InstrumentType;
   position: { x: number; y: number };
   isPlaying: boolean;
   onRemove: () => void;
